@@ -1,3 +1,2 @@
 # NXNetworking
-
-A description of this package.
+This is a swift library for HTTP requests using Combine Framework.
