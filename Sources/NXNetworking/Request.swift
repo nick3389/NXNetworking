@@ -27,60 +27,52 @@ import Combine
 public typealias Parameters = [String: Any]
 
 public struct Request<Parameters: Encodable> {
-    public var name: String?
-    public var urlPath: String
+    public init() {}
+    public var urlPath: String?
     public var parameters: Parameters?
-    public var headers: [String: String]
-    public var builder: ParametersBuilder
+    public var headers: [String: String]?
+    public var builder: ParametersBuilder?
     
     public mutating func addHeader(_ key: String, value: String) {
-        headers[key] = value
+        headers?[key] = value
     }
 }
 
 
-public protocol ParametersBuilder {
-    func build<Parameters: Encodable>(params: Parameters, forRequest: URLRequest) -> AnyPublisher<URLRequest, NXError>
+public protocol Builbadle {
+    func build<Parameters: Encodable>(params: Parameters, forRequest request: URLRequest) -> AnyPublisher<URLRequest, NXError>
 }
 
-
-public struct JSONParamsBuilder: ParametersBuilder {
-    public let encoder: JSONEncoder
+public enum ParametersBuilder: Builbadle {
+    case json(JSONEncoder), query(JSONEncoder)
     
-    public func build<Parameters: Encodable>(params: Parameters, forRequest request: URLRequest) -> AnyPublisher<URLRequest, NXError> {
-        var request = request
-
-        return Just(params)
+    public func build<Parameters>(params: Parameters, forRequest request: URLRequest) -> AnyPublisher<URLRequest, NXError> where Parameters : Encodable {
+        var r = request
+        
+        switch self {
+        case .json(let encoder):
+            return Just(params)
             .encode(encoder: encoder)
             .map({ (data) -> URLRequest in
-                request.httpBody = data
-                if request.value(forHTTPHeaderField: "Content-Type") == nil {
-                    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+                r.httpBody = data
+                if r.value(forHTTPHeaderField: "Content-Type") == nil {
+                    r.addValue("application/json", forHTTPHeaderField: "Content-Type")
                 }
-                return request
+                return r
             })
             .mapError({NXError.serialization($0)})
             .eraseToAnyPublisher()
-    }
-}
-
-public struct QueryParamsBuilder: ParametersBuilder {
-    public let encoder: JSONEncoder
-    
-    public func build<Parameters: Encodable>(params: Parameters, forRequest request: URLRequest) -> AnyPublisher<URLRequest, NXError> {
-        var r = request
-        
-        return Just(params)
+        case .query(let encoder):
+            return Just(params)
             .encode(encoder: encoder)
             .tryMap({try JSONSerialization.jsonObject(with: $0, options: .allowFragments) as! [String: Any]})
             .map { (params) -> URLRequest in
                 let queryString = params.compactMapValues({$0}).map({"\($0)=\($1)"}).joined(separator: "&")
                 r.url?.appendPathComponent("?\(queryString)")
-                return request
+                return r
             }
             .mapError({NXError.serialization($0)})
             .eraseToAnyPublisher()
+        }
     }
 }
-
-

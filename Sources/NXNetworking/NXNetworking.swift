@@ -76,7 +76,7 @@ public struct NXNetworking<N>: URLSessionPublisher {
     }
     
     func createURLRequest<P: Encodable>(request: Request<P>, method: HTTPMethod) -> AnyPublisher<URLRequest, NXError> {
-        guard let url = URL(string: request.urlPath) else {
+        guard let path = request.urlPath, let url = URL(string: path) else {
             return Fail(error: NXError.invalidURL).eraseToAnyPublisher()
         }
         
@@ -85,7 +85,13 @@ public struct NXNetworking<N>: URLSessionPublisher {
         r.cachePolicy = NSURLRequest.CachePolicy.reloadIgnoringCacheData
         r.timeoutInterval = 100.0
         r.allHTTPHeaderFields = request.headers
-        return request.builder.build(params: request.parameters, forRequest: r)
+        if let builder = request.builder {
+            return builder.build(params: request.parameters, forRequest: r)
+        }
+        
+        return Future<URLRequest, NXError> { (promise) in
+            promise(.success(r))
+        }.eraseToAnyPublisher()
     }
     
     
