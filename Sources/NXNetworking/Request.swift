@@ -27,13 +27,13 @@ import Combine
 public typealias Parameters = [String: Any]
 
 public struct Request<Parameters: Encodable> {
-    var name: String?
-    var urlPath: String
-    var parameters: Parameters?
-    var headers: [String: String]
-    var builder: ParametersBuilder
+    public var name: String?
+    public var urlPath: String
+    public var parameters: Parameters?
+    public var headers: [String: String]
+    public var builder: ParametersBuilder
     
-    mutating func addHeader(_ key: String, value: String) {
+    public mutating func addHeader(_ key: String, value: String) {
         headers[key] = value
     }
 }
