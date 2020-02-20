@@ -45,6 +45,8 @@ protocol RESTable {
 public struct NXNetworking<N>: URLSessionPublisher {
     public typealias U = N
     
+    public init() {}
+    
     public func get<P: Encodable, T: Decodable>(request: Request<P>, response: ResponseType<T>) -> AnyPublisher<NXResponse<U>, NXError> {
         return handleRequest(request, withResponseType: response, method: .get)
     }
