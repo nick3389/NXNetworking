@@ -56,6 +56,10 @@ extension URLSessionPublisher {
             if let error = e as? URLError {
                 return NXError.network(error)
             }
+            
+            if e is NXError {
+                return e as! NXError
+            }
             return NXError.unknown(nil)
         })
         .eraseToAnyPublisher()

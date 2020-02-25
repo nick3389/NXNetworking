@@ -77,14 +77,22 @@ public enum ParametersBuilder: Builbadle {
                 guard var urlPath = request.url?.absoluteString else {
                     throw NXError.invalidURL
                 }
+                
                 urlPath.append("?\(queryString)")
+                
                 guard let finalURL = urlPath.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
                     throw NXError.unknown("error in parameterizing url")
                 }
                 r.url = URL(string: finalURL)
+                
                 return r
             }
-            .mapError({NXError.serialization($0)})
+            .mapError({ error -> NXError in
+                if error is NXError {
+                    return error as! NXError
+                }
+                return NXError.serialization(error)
+            })
             .eraseToAnyPublisher()
         }
     }
