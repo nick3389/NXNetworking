@@ -27,8 +27,7 @@ import Combine
 public typealias Parameters = [String: Any]
 
 public struct Request<Parameters: Encodable> {
-    public init() {}
-    public var urlPath: String?
+    public let urlPath: String
     public var parameters: Parameters?
     public var headers: [String: String]?
     public var builder: ParametersBuilder?
@@ -38,6 +37,7 @@ public struct Request<Parameters: Encodable> {
     }
 }
 
+public typealias RequestWithoutParameters = Request<Bool>
 
 public protocol Builbadle {
     func build<Parameters: Encodable>(params: Parameters, forRequest request: URLRequest) -> AnyPublisher<URLRequest, NXError>

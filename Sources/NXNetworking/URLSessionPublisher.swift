@@ -47,6 +47,9 @@ extension URLSessionPublisher {
             guard let r = res.response as? HTTPURLResponse else {
                 throw NXError.unknown("")
             }
+            guard 200...399 ~= r.statusCode else {
+                throw NXError.server(r.statusCode, "Request failed with response:\n\(r)")
+            }
             return NXResponse<Data>(response: r, data: res.data)
         })
         .mapError({ (e) -> NXError in

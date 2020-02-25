@@ -82,7 +82,7 @@ public struct NXNetworking<N>: URLSessionPublisher {
     }
     
     func createURLRequest<P: Encodable>(request: Request<P>, method: HTTPMethod) -> AnyPublisher<URLRequest, NXError> {
-        guard let path = request.urlPath, let url = URL(string: path) else {
+        guard let url = URL(string: request.urlPath) else {
             return Fail(error: NXError.invalidURL).eraseToAnyPublisher()
         }
         
