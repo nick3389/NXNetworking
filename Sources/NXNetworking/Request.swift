@@ -32,19 +32,15 @@ public struct Request<Parameters: Encodable> {
     public var headers: [String: String]?
     public var builder: ParametersBuilder?
     
-    public mutating func addHeader(_ key: String, value: String) {
-        headers?[key] = value
+    public init(path: String) {
+        urlPath = path
     }
-}
-
-public struct MockRequest {
-    public let urlPath: String
-    public var headers: [String: String]?
     
     public mutating func addHeader(_ key: String, value: String) {
         headers?[key] = value
     }
 }
+
 
 public typealias RequestWithoutParameters = Request<Bool>
 

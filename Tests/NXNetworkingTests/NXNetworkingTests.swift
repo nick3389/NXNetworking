@@ -10,7 +10,7 @@ final class NXNetworkingTests: XCTestCase {
         config.protocolClasses = [URLProtocolStub.self]
         
         let networking = NXNetworking<Data>(configuration: config)
-        let request = RequestWithoutParameters(urlPath: "https://www.apple.com/data")
+        let request = RequestWithoutParameters(path: "https://www.apple.com/data")
         
         let cancellable = networking.get(request: request, response: NonDecodableResponseType.data).sink(receiveCompletion: { (result) in
             switch result {
@@ -39,7 +39,7 @@ final class NXNetworkingTests: XCTestCase {
         config.protocolClasses = [URLProtocolStub.self]
         
         let networking = NXNetworking<[String: Any]>(configuration: config)
-        var request = Request<QueryParamsRequest>(urlPath: "https://www.apple.com/json")
+        var request = Request<QueryParamsRequest>(path: "https://www.apple.com/json")
         request.parameters = QueryParamsRequest(name: "John Appleseed")
         request.builder = .query(JSONEncoder())
         
@@ -69,7 +69,7 @@ final class NXNetworkingTests: XCTestCase {
         config.protocolClasses = [URLProtocolStub.self]
         
         let networking = NXNetworking<StubModel>(configuration: config)
-        let request = RequestWithoutParameters(urlPath: "https://www.apple.com/decodable")
+        let request = RequestWithoutParameters(path: "https://www.apple.com/decodable")
         
         let cancellable = networking.get(request: request, response: ResponseType.decodable(StubModel.self)).sink(receiveCompletion: { (result) in
             switch result {
@@ -100,7 +100,7 @@ final class NXNetworkingTests: XCTestCase {
         config.protocolClasses = [URLProtocolStub.self]
         
         let networking = NXNetworking<String>(configuration: config)
-        let request = RequestWithoutParameters(urlPath: "https://www.apple.com/string")
+        let request = RequestWithoutParameters(path: "https://www.apple.com/string")
         
         let cancellable = networking.get(request: request, response: NonDecodableResponseType.string).sink(receiveCompletion: { (result) in
             switch result {
