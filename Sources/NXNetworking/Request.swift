@@ -66,9 +66,17 @@ public enum ParametersBuilder: Builbadle {
             return Just(params)
             .encode(encoder: encoder)
             .tryMap({try JSONSerialization.jsonObject(with: $0, options: .allowFragments) as! [String: Any]})
-            .map { (params) -> URLRequest in
+            .tryMap { (params) -> URLRequest in
                 let queryString = params.compactMapValues({$0}).map({"\($0)=\($1)"}).joined(separator: "&")
-                r.url?.appendPathComponent("?\(queryString)")
+                
+                guard var urlPath = request.url?.absoluteString else {
+                    throw NXError.invalidURL
+                }
+                urlPath.append("?\(queryString)")
+                guard let finalURL = urlPath.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+                    throw NXError.unknown("error in parameterizing url")
+                }
+                r.url = URL(string: finalURL)
                 return r
             }
             .mapError({NXError.serialization($0)})

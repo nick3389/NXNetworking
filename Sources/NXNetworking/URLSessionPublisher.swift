@@ -29,14 +29,19 @@ import Combine
 
 
 internal protocol URLSessionPublisher {
-    func dataTask(_ method: HTTPMethod, request: URLRequest) -> AnyPublisher<NXResponse<Data>, NXError>
+    func dataTask(_ method: HTTPMethod, request: URLRequest, configuration: URLSessionConfiguration?) -> AnyPublisher<NXResponse<Data>, NXError>
 }
 
 extension URLSessionPublisher {
-    func dataTask(_ method: HTTPMethod, request: URLRequest) -> AnyPublisher<NXResponse<Data>, NXError> {
+    func dataTask(_ method: HTTPMethod, request: URLRequest, configuration: URLSessionConfiguration?) -> AnyPublisher<NXResponse<Data>, NXError> {
         
-        let session = URLSession.shared
-
+        let session: URLSession
+        if let config = configuration {
+            session = URLSession(configuration: config)
+        } else {
+            session = URLSession.shared
+        }
+        
         return session.dataTaskPublisher(for: request)
         .tryMap({ res -> NXResponse<Data> in
             guard let r = res.response as? HTTPURLResponse else {

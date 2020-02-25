@@ -31,7 +31,7 @@ public enum ResponseType<T: Decodable> {
     case decodable(T.Type)
 }
 
-
+public typealias NonDecodableResponseType = ResponseType<Bool>
 
 protocol RESTable {
     associatedtype U
@@ -45,7 +45,13 @@ protocol RESTable {
 public struct NXNetworking<N>: URLSessionPublisher {
     public typealias U = N
     
+    internal var configuration: URLSessionConfiguration?
+    
     public init() {}
+    
+    public init(configuration: URLSessionConfiguration) {
+        self.configuration = configuration
+    }
     
     public func get<P: Encodable, T: Decodable>(request: Request<P>, response: ResponseType<T>) -> AnyPublisher<NXResponse<U>, NXError> {
         return handleRequest(request, withResponseType: response, method: .get)
@@ -70,7 +76,7 @@ public struct NXNetworking<N>: URLSessionPublisher {
     //MARK: Internal API
     func handleRequest<P: Encodable, T: Decodable>(_ request: Request<P>, withResponseType type: ResponseType<T>, method: HTTPMethod) -> AnyPublisher<NXResponse<U>, NXError> {
         return createURLRequest(request: request, method: method)
-            .flatMap({self.dataTask(method, request: $0)})
+            .flatMap({self.dataTask(method, request: $0, configuration: self.configuration)})
             .flatMap(maxPublishers: .max(1), {self.decode($0, type: type)})
             .eraseToAnyPublisher()
     }
