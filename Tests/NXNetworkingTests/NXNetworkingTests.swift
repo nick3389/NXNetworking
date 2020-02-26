@@ -71,7 +71,7 @@ final class NXNetworkingTests: XCTestCase {
         let networking = NXNetworking<StubModel>(configuration: config)
         let request = RequestWithoutParameters(path: "https://www.apple.com/decodable")
         
-        let cancellable = networking.get(request: request, response: ResponseType.decodable(StubModel.self)).sink(receiveCompletion: { (result) in
+        let cancellable = networking.get(request: request, response: ResponseType.decodable(StubModel.self, JSONDecoder())).sink(receiveCompletion: { (result) in
             switch result {
             case .finished:
                 XCTAssert(true)

@@ -28,7 +28,7 @@ public enum ResponseType<T: Decodable> {
     case data
     case string
     case json
-    case decodable(T.Type)
+    case decodable(T.Type, JSONDecoder)
 }
 
 public typealias NonDecodableResponseType = ResponseType<Bool>
@@ -122,8 +122,8 @@ public struct NXNetworking<N>: URLSessionPublisher {
                     return NXResponse<U>(response: r.response, data: json)
                 }.mapError({NXError.serialization($0)})
                 .eraseToAnyPublisher()
-        case .decodable(let P):
-            return Just(response.data).decode(type: P.self, decoder: JSONDecoder())
+        case .decodable(let P, let decoder):
+            return Just(response.data).decode(type: P.self, decoder: decoder)
                 .map({NXResponse<T>(response: response.response, data: $0) as! NXResponse<U>})
                 .mapError({NXError.serialization($0)})
                 .eraseToAnyPublisher()
