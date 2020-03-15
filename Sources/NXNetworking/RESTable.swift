@@ -1,5 +1,5 @@
 //
-//  NXError.swift
+//  RESTable.swift
 //
 //  Copyright (c) 2020 nick3389
 //
@@ -22,14 +22,13 @@
 //  SOFTWARE.
 
 import Foundation
+import Combine
 
-
-/// This enum contains the type of error that presented while handling a `Request`.
-public enum NXError: Error {
-    case invalidURL
-    case server(Int, String)
-    case network(URLError)
-    case parsing(String)
-    case serialization(Error?)
-    case unknown(String?)
+protocol RESTable {
+    associatedtype U
+    func get<P: Encodable, T: Decodable>(request: Request<P>, response: ResponseType<T>) -> AnyPublisher<NXResponse<U>, NXError>
+    func put<P: Encodable, T: Decodable>(request: Request<P>, response: ResponseType<T>) -> AnyPublisher<NXResponse<U>, NXError>
+    func patch<P: Encodable, T: Decodable>(request: Request<P>, response: ResponseType<T>) -> AnyPublisher<NXResponse<U>, NXError>
+    func post<P: Encodable, T: Decodable>(request: Request<P>, response: ResponseType<T>) -> AnyPublisher<NXResponse<U>, NXError>
+    func delete<P: Encodable, T: Decodable>(request: Request<P>, response: ResponseType<T>) -> AnyPublisher<NXResponse<U>, NXError>
 }

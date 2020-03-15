@@ -1,5 +1,5 @@
 //
-//  NXError.swift
+//  ResponseType.swift
 //
 //  Copyright (c) 2020 nick3389
 //
@@ -24,12 +24,11 @@
 import Foundation
 
 
-/// This enum contains the type of error that presented while handling a `Request`.
-public enum NXError: Error {
-    case invalidURL
-    case server(Int, String)
-    case network(URLError)
-    case parsing(String)
-    case serialization(Error?)
-    case unknown(String?)
+public enum ResponseType<T: Decodable> {
+    case data
+    case string
+    case json
+    case decodable(T.Type, JSONDecoder)
 }
+
+public typealias NonDecodableResponseType = ResponseType<Bool>

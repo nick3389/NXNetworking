@@ -24,32 +24,14 @@
 import Foundation
 import Combine
 
-public enum ResponseType<T: Decodable> {
-    case data
-    case string
-    case json
-    case decodable(T.Type, JSONDecoder)
-}
 
-public typealias NonDecodableResponseType = ResponseType<Bool>
-
-protocol RESTable {
-    associatedtype U
-    func get<P: Encodable, T: Decodable>(request: Request<P>, response: ResponseType<T>) -> AnyPublisher<NXResponse<U>, NXError>
-    func put<P: Encodable, T: Decodable>(request: Request<P>, response: ResponseType<T>) -> AnyPublisher<NXResponse<U>, NXError>
-    func patch<P: Encodable, T: Decodable>(request: Request<P>, response: ResponseType<T>) -> AnyPublisher<NXResponse<U>, NXError>
-    func post<P: Encodable, T: Decodable>(request: Request<P>, response: ResponseType<T>) -> AnyPublisher<NXResponse<U>, NXError>
-    func delete<P: Encodable, T: Decodable>(request: Request<P>, response: ResponseType<T>) -> AnyPublisher<NXResponse<U>, NXError>
-}
 
 public struct NXNetworking<N>: URLSessionPublisher {
     public typealias U = N
     
     internal var configuration: URLSessionConfiguration?
     
-    public init() {}
-    
-    public init(configuration: URLSessionConfiguration) {
+    public init(configuration: URLSessionConfiguration = .default) {
         self.configuration = configuration
     }
     

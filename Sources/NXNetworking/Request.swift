@@ -28,6 +28,7 @@ public typealias Parameters = [String: Any]
 
 public struct Request<Parameters: Encodable> {
     public let urlPath: String
+    public var method: HTTPMethod = .get
     public var parameters: Parameters?
     public var headers: [String: String]?
     public var builder: ParametersBuilder?
@@ -41,59 +42,4 @@ public struct Request<Parameters: Encodable> {
     }
 }
 
-
 public typealias RequestWithoutParameters = Request<Bool>
-
-public protocol Builbadle {
-    func build<Parameters: Encodable>(params: Parameters, forRequest request: URLRequest) -> AnyPublisher<URLRequest, NXError>
-}
-
-public enum ParametersBuilder: Builbadle {
-    case json(JSONEncoder), query(JSONEncoder)
-    
-    public func build<Parameters>(params: Parameters, forRequest request: URLRequest) -> AnyPublisher<URLRequest, NXError> where Parameters : Encodable {
-        var r = request
-        
-        switch self {
-        case .json(let encoder):
-            return Just(params)
-            .encode(encoder: encoder)
-            .map({ (data) -> URLRequest in
-                r.httpBody = data
-                if r.value(forHTTPHeaderField: "Content-Type") == nil {
-                    r.addValue("application/json", forHTTPHeaderField: "Content-Type")
-                }
-                return r
-            })
-            .mapError({NXError.serialization($0)})
-            .eraseToAnyPublisher()
-        case .query(let encoder):
-            return Just(params)
-            .encode(encoder: encoder)
-            .tryMap({try JSONSerialization.jsonObject(with: $0, options: .allowFragments) as! [String: Any]})
-            .tryMap { (params) -> URLRequest in
-                let queryString = params.compactMapValues({$0}).map({"\($0)=\($1)"}).joined(separator: "&")
-                
-                guard var urlPath = request.url?.absoluteString else {
-                    throw NXError.invalidURL
-                }
-                
-                urlPath.append("?\(queryString)")
-                
-                guard let finalURL = urlPath.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
-                    throw NXError.unknown("error in parameterizing url")
-                }
-                r.url = URL(string: finalURL)
-                
-                return r
-            }
-            .mapError({ error -> NXError in
-                if error is NXError {
-                    return error as! NXError
-                }
-                return NXError.serialization(error)
-            })
-            .eraseToAnyPublisher()
-        }
-    }
-}
