@@ -40,9 +40,9 @@ public enum ParametersBuilder: Builbadle {
             .encode(encoder: encoder)
             .map({ (data) -> URLRequest in
                 r.httpBody = data
-                if r.value(forHTTPHeaderField: "Content-Type") == nil {
-                    r.addValue("application/json", forHTTPHeaderField: "Content-Type")
-                }
+//                if r.value(forHTTPHeaderField: "Content-Type") == nil {
+//                    r.addValue("application/json", forHTTPHeaderField: "Content-Type")
+//                }
                 return r
             })
             .mapError({NXError.serialization($0)})
